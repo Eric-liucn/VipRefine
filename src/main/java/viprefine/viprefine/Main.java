@@ -8,11 +8,18 @@ import net.luckperms.api.model.group.GroupManager;
 import net.luckperms.api.model.user.UserManager;
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.plugin.Dependency;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
+import viprefine.viprefine.commands.Base;
+import viprefine.viprefine.config.Config;
+
+import java.io.File;
+import java.io.IOException;
 
 @Plugin(
         id = "viprefine",
@@ -20,6 +27,10 @@ import org.spongepowered.api.text.format.TextColors;
         description = "An vip manage plugin",
         authors = {
                 "EricLiu"
+        },
+        dependencies = {
+            @Dependency(id = "luckperms"),
+            @Dependency(id = "nucleus")
         }
 )
 public class Main {
@@ -37,6 +48,10 @@ public class Main {
         return INSTANCE.logger;
     }
 
+    @Inject
+    @ConfigDir(sharedRoot = false)
+    File file;
+
     @Listener
     public void onServerStart(GameStartedServerEvent event) {
         INSTANCE = this;
@@ -52,6 +67,13 @@ public class Main {
                         "  \\_/  |___|_| |_|_\\___|_|  |___||_|\\_|___| \n" +
                         "                                            \n"));
 
+        try {
+            Config.setup(file);
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+
+        Sponge.getCommandManager().register(this, Base.build(),"viprefine","vip","vr");
     }
 
     private static LuckPerms getLuckPerms(){
