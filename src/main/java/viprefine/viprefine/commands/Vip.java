@@ -10,6 +10,7 @@ import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.service.pagination.PaginationList;
 import org.spongepowered.api.text.Text;
+import viprefine.viprefine.Main;
 import viprefine.viprefine.config.Config;
 import viprefine.viprefine.utils.Utils;
 
@@ -22,7 +23,7 @@ public class Vip implements CommandExecutor {
         //Check whether the user in the group
         String group = args.<String>getOne("group").get();
         User user = args.<User>getOne("user").get();
-        int days = args.<Integer>getOne("days").get();
+        String duration = args.<String>getOne("duration").get();
         if (Utils.getPrimaryGroupName(user).equals(group)){
             PaginationList.builder()
                     .padding(Utils.strFormat("&a="))
@@ -32,7 +33,25 @@ public class Vip implements CommandExecutor {
             return CommandResult.success();
         }
 
+        if (Main.getLuckPermGroupManager().getGroup(group)==null){
+            PaginationList.builder()
+                    .padding(Utils.strFormat("&a="))
+                    .title(Utils.strFormat("&dVIPREFINE"))
+                    .contents(Utils.strFormat("&b该用户组不存在"))
+                    .sendTo(src);
+            return CommandResult.success();
+        }
+
+        if (Utils.getDurationLong(duration) == 0){
+            PaginationList.builder()
+                    .padding(Utils.strFormat("&a="))
+                    .title(Utils.strFormat("&dVIPREFINE"))
+                    .contents(Utils.strFormat("&b持续时间格式有误"))
+                    .sendTo(src);
+            return CommandResult.success();
+        }
         Utils.addUserToGroup(user,group);
+        Utils.setGroupExpireOfUser(user,group,duration);
 
         return CommandResult.success();
     }
@@ -56,7 +75,7 @@ public class Vip implements CommandExecutor {
                                         )
                                 ),
                                 GenericArguments.onlyOne(
-                                        GenericArguments.integer(Text.of("days"))
+                                        GenericArguments.string(Text.of("duration"))
                                 )
                         )
                 )
