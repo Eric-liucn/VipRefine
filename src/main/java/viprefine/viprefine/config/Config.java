@@ -30,6 +30,7 @@ public class Config {
         rootNode = loader.load();
         if (rootNode.getNode("Version").isVirtual()){
             addDefaultValue();
+            saveConfig();
         }
     }
 
@@ -47,18 +48,16 @@ public class Config {
         commands.add("warp %player% zy");
         rootNode.getNode("Groups","VIP","Kits","Kit1","KitName").setValue("vip礼包1");
         rootNode.getNode("Groups","VIP","Kits","Kit1","Commands").setValue(commands);
-        rootNode.getNode("Groups","VIP","Kits","Kit1","Exp").setValue(50);
+        rootNode.getNode("Groups","VIP","Kits","Exp").setValue(50);
         rootNode.getNode("Groups","VIP","Kits","Kit2","KitName").setValue("vip礼包2");
         rootNode.getNode("Groups","VIP","Kits","Kit2","Commands").setValue(commands);
-        rootNode.getNode("Groups","VIP","Kits","Kit2","Exp").setValue(50);
         rootNode.getNode("Groups","VIP","DailyKits","Kit1","KitName").setValue("vip每日礼包");
         rootNode.getNode("Groups","VIP","DailyKits","Kit1","Commands").setValue(commands);
-        rootNode.getNode("Groups","VIP","DailyKits","Kit1","Exp").setValue(10);
+        rootNode.getNode("Groups","VIP","DailyKits","Exp").setValue(10);
         rootNode.getNode("Groups","VIP","JoinBroadcast").setValue(true);
         rootNode.getNode("Groups","VIP","JoinBroadcastMessage").setValue("&l&a欢迎VIP玩家 %player% 加入游戏");
         rootNode.getNode("Groups","VIP","Prefix").setValue("&a&l[VIP]");
         rootNode.getNode("Groups","VIP","Suffix").setValue("&d&l[VIP]");
-        rootNode.getNode("Groups","VIP","BroadcastAfterActivate").setValue(true);
         rootNode.getNode("Groups","VIP","BroadcastMessageAfterActivate").setValue("&a&l玩家%player%开通了VIP");
         rootNode.getNode("Version").setValue(1.0);
     }

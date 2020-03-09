@@ -17,6 +17,7 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 import viprefine.viprefine.commands.Base;
 import viprefine.viprefine.config.Config;
+import viprefine.viprefine.config.KitData;
 
 import java.io.File;
 import java.io.IOException;
@@ -69,6 +70,7 @@ public class Main {
 
         try {
             Config.setup(file);
+            KitData.setUpDataBase(file);
         }catch (IOException e){
             e.printStackTrace();
         }
