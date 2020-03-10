@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="identifier.sqlite" uuid="3e7316cd-71df-4967-ba1f-34f79f9c9ded">
+    <data-source source="LOCAL" name="kitRedeem.db" uuid="c5f68a92-9277-4abf-85fa-93b0d618bdce">
       <driver-ref>sqlite.xerial</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
-      <jdbc-url>jdbc:sqlite:identifier.sqlite</jdbc-url>
+      <jdbc-url>jdbc:sqlite:$USER_HOME$/Desktop/server/config/viprefine/kitRedeem.db</jdbc-url>
     </data-source>
   </component>
 </project>

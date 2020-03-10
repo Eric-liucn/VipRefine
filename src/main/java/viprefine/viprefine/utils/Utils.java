@@ -45,11 +45,7 @@ public class Utils {
             result = user1.data().add(node);
             saveUserData(user1);
         }
-        if (result.wasSuccessful()){
-            return true;
-        }
-
-        return false;
+        return result.wasSuccessful();
     }
 
     private static void saveUserData(net.luckperms.api.model.user.User user){
@@ -151,8 +147,12 @@ public class Utils {
         return null;
     }
 
+
     public static void giveExp(User user,int level){
-        user.offer(Keys.EXPERIENCE_LEVEL,level);
+        if (user.isOnline()){
+            level += user.getPlayer().get().get(Keys.EXPERIENCE_LEVEL).get();
+            user.getPlayer().get().offer(Keys.EXPERIENCE_LEVEL,level);
+        }
     }
 
     public static void runCommand(String command){
@@ -166,4 +166,5 @@ public class Utils {
         }
         return vipGroups;
     }
+
 }

@@ -46,6 +46,7 @@ public class Config {
         List<String> commands = new ArrayList<>();
         commands.add("give %player% minecraft:wool 1");
         commands.add("warp %player% zy");
+        rootNode.getNode("Groups","VIP","DisplayName").setValue("普通会员");
         rootNode.getNode("Groups","VIP","Kits","Kit1","KitName").setValue("vip礼包1");
         rootNode.getNode("Groups","VIP","Kits","Kit1","Commands").setValue(commands);
         rootNode.getNode("Groups","VIP","Kits","Exp").setValue(50);

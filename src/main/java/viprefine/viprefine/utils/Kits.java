@@ -49,8 +49,10 @@ public class Kits {
              ) {
             if (((String)group).equalsIgnoreCase(vipGroupName)){
                 for (Object kit:Config.getRootNode().getNode("Groups", group,"Kits").getChildrenMap().keySet()){
-                    String kitName = Config.getRootNode().getNode("Groups", group,"Kits", kit,"KitName").getString();
-                    kitsOfTheVipGroup.add(kitName);
+                    if (!kit.equals("Exp")) {
+                        String kitName = Config.getRootNode().getNode("Groups", group, "Kits", kit, "KitName").getString();
+                        kitsOfTheVipGroup.add(kitName);
+                    }
                 }
             }
         }
@@ -61,12 +63,14 @@ public class Kits {
         List<String> dailyKitsOfThisVipGroup = new ArrayList<>();
         for (Object group:Config.getRootNode().getNode("Groups").getChildrenMap().keySet()){
             if (((String)group).equalsIgnoreCase(vipGroupName)){
-                for(Object kit:Config.getRootNode().getNode("Groups",((String)group),"DailyKits").getChildrenMap().keySet()){
-                    String kitName = Config.getRootNode().getNode("Groups", group,"DailyKits", kit,"KitName").getString();
-                    dailyKitsOfThisVipGroup.add(kitName);
+                for(Object kit:Config.getRootNode().getNode("Groups", group,"DailyKits").getChildrenMap().keySet()){
+                    if (!kit.equals("Exp")) {
+                        String kitName = Config.getRootNode().getNode("Groups", group, "DailyKits", kit, "KitName").getString();
+                        dailyKitsOfThisVipGroup.add(kitName);
                     }
                 }
             }
+        }
         return dailyKitsOfThisVipGroup;
     }
 

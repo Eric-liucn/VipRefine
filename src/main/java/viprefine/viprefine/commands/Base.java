@@ -37,6 +37,8 @@ public class Base implements CommandExecutor {
                 .child(Vip.build(),"vip")
                 .child(PlayerInfo.build(),"playerinfo","pinfo")
                 .child(DailyKit.build(),"dailykit","meirilibao")
+                .child(GroupInfo.build(),"groupinfo","ginfo")
+                .child(Remove.build(),"remove")
                 .build();
     }
 }

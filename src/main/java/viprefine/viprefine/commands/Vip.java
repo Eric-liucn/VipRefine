@@ -8,14 +8,22 @@ import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.command.spec.CommandExecutor;
 import org.spongepowered.api.command.spec.CommandSpec;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.service.pagination.PaginationList;
 import org.spongepowered.api.text.Text;
 import viprefine.viprefine.Main;
 import viprefine.viprefine.config.Config;
+import viprefine.viprefine.utils.GroupManager;
 import viprefine.viprefine.utils.Kits;
+import viprefine.viprefine.utils.Message;
 import viprefine.viprefine.utils.Utils;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class Vip implements CommandExecutor {
@@ -66,7 +74,10 @@ public class Vip implements CommandExecutor {
         }
 
         if (user.isOnline()){
-            user.getPlayer().get().sendMessage(Utils.strFormat("&d&l[VIPREFINE]&a&lVIP礼包将于大约10秒后发放到你的背包，请确保背包空间足够"));
+            Player player = user.getPlayer().get();
+            List<Text> list = new ArrayList<>();
+            list.add(Utils.strFormat("&4VIP礼包将于大约10秒后发放到你的背包，请确保背包空间足够"));
+            Message.sendPaginationList(player,list);
         }
 
         Sponge.getScheduler().createTaskBuilder()
@@ -76,13 +87,22 @@ public class Vip implements CommandExecutor {
                         try {
                             Kits.giveUserKit(user, Kits.getKit(kit));
                         }catch (Exception e){
-                            src.sendMessage(Utils.strFormat("&d&l[VIPREFINE]&4发放礼包&a "+kit+" &4失败，请检查礼包是否存在或者玩家背包是否已满"));
+                            List<Text> list = new ArrayList<>();
+                            list.add(Utils.strFormat("&4发放礼包&a "+kit+" &4失败，请检查礼包是否存在或者玩家背包是否已满"));
+                            Message.sendPaginationList(src,list);
                         }
 
                     }
                     try {
                         if (user.isOnline()){
-                            user.getPlayer().get().sendMessage(Utils.strFormat("&d&l[VIPREFINE]&a&lVIP礼包已发放到你的背包！"));
+                            Player player = user.getPlayer().get();
+                            List<Text> list = new ArrayList<>();
+                            list.add(Utils.strFormat("&b玩家：&d"+player.getName()));
+                            list.add(Utils.strFormat("&bVIP：&d"+ GroupManager.getDisplayName(group)));
+                            list.add(Utils.strFormat("&b到期时间：&d"+ getExpireDay(duration)));
+                            list.add(Utils.strFormat("&b礼包发放：&aVIP礼包及经验奖励已发放到你的背包！"));
+                            list.add(Utils.strFormat("&b每日礼包：&a使用 &e/vip mrlb &a来领取VIP每日礼包和每日经验"));
+                            Message.sendPaginationList(player,list);
                         }
                     }catch (Exception ignored){}
 
@@ -92,19 +112,22 @@ public class Vip implements CommandExecutor {
 
         //get the exp bonus of this group kits
         int expLevel = Kits.getExpOfThisVipGroup(group);
+        Main.getLogger().info(String.valueOf(expLevel));
         try {
             Sponge.getScheduler().createTaskBuilder()
                     .execute(()->{
                         try {
-                            Utils.giveExp(user, expLevel);
                             if (user.isOnline()) {
-                                user.getPlayer().get().sendMessage(Utils.strFormat("&d&l[VIPREFINE]&a&l已发放VIP开通经验奖励！"));
+                                Utils.giveExp(user, expLevel);
+                                //user.getPlayer().get().sendMessage(Utils.strFormat("&d&l[VIPREFINE]&a&l已发放VIP开通经验奖励！"));
+                            }else {
+                                src.sendMessage(Utils.strFormat("&d&l[VIPREFINE]&a&l该玩家当前不在线，经验奖励发放失败"));
                             }
                         }catch (Exception e){
                             src.sendMessage(Utils.strFormat("&d&l[VIPREFINE]&a&lVIP开通经验奖励发放失败！"));
                         }
                     })
-                    .delay(1,TimeUnit.SECONDS)
+                    .delay(10,TimeUnit.SECONDS)
                     .submit(Main.getINSTANCE());
         }catch (Exception ignored){}
 
@@ -115,7 +138,7 @@ public class Vip implements CommandExecutor {
                 command = command.replaceAll("%player%",user.getName());
                 Utils.runCommand(command);
             }
-            src.sendMessage(Utils.strFormat("&d&l[VIPREFINE]&a&VIP开通奖励指令执行成功"));
+            //src.sendMessage(Utils.strFormat("&d&l[VIPREFINE]&a&VIP开通奖励指令执行成功"));
         }catch (Exception e){
             src.sendMessage(Utils.strFormat("&d&l[VIPREFINE]&a&执行VIP开通奖励指令失败"));
         }
@@ -123,8 +146,13 @@ public class Vip implements CommandExecutor {
         //开通VIP公告
         try {
             if (Kits.getBroadcastMessage(group) != null && !Kits.getBroadcastMessage(group).equals("")) {
-                String message = Kits.getBroadcastMessage(group);
-                Sponge.getServer().getBroadcastChannel().send(Utils.strFormat(message));
+                Text message = Utils.strFormat(Kits.getBroadcastMessage(group).replaceAll("%player%",user.getName()));
+                List<Text> list = new ArrayList<>();
+                list.add(message);
+                for (Player player:Sponge.getServer().getOnlinePlayers()){
+                    Message.sendPaginationList(player,list);
+                }
+                Message.sendPaginationList(Sponge.getServer().getConsole(),list);
             }
         }catch (Exception ignored){}
 
@@ -155,5 +183,13 @@ public class Vip implements CommandExecutor {
                 .description(Utils.strFormat("&bAdd an user to a vip group with days specific"))
                 .build();
 
+    }
+
+    private static String getExpireDay(String duration){
+        long durationSeconds = Utils.getDurationLong(duration);
+        LocalDateTime localDateTime = LocalDateTime.now();
+        LocalDateTime newLocalDateTime = localDateTime.plusSeconds(durationSeconds);
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        return dateTimeFormatter.format(newLocalDateTime);
     }
 }

@@ -14,9 +14,11 @@ import org.spongepowered.api.text.Text;
 import viprefine.viprefine.Main;
 import viprefine.viprefine.config.KitData;
 import viprefine.viprefine.utils.Kits;
+import viprefine.viprefine.utils.Message;
 import viprefine.viprefine.utils.TimeCalculation;
 import viprefine.viprefine.utils.Utils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -34,7 +36,9 @@ public class DailyKit implements CommandExecutor {
             //检查当天是否领过
             String redeemData = KitData.getKitRedeemData(player,TimeCalculation.getTodayTimeLabel());
             if (redeemData.equals("Y")){
-                player.sendMessage(Utils.strFormat("&d&l[VIPREFINE]&a&l你今天已经领取过了！"));
+                List<Text> list = new ArrayList<>();
+                list.add(Utils.strFormat("&a你今天已经领取过了！"));
+                Message.sendPaginationList(player,list);
                 return CommandResult.success();
             }
             //先判断是不是VIP
@@ -45,17 +49,23 @@ public class DailyKit implements CommandExecutor {
                 //获取该vip的组的每日礼包
                 List<String> DailyKits = Kits.getDailyKitsOfTheVipGroup(group);
                 //发放礼包
-                player.sendMessage(Utils.strFormat("&d&l[VIPREFINE]&a&lVIP每日礼包将在5秒后发放，请确保背包空间充足"));
+                List<Text> list = new ArrayList<>();
+                list.add(Utils.strFormat("&4&lVIP每日礼包将在5秒后发放，请确保背包空间充足"));
+                Message.sendPaginationList(player,list);
                 Sponge.getScheduler().createTaskBuilder()
                         .execute(()->{
                             try {
                                 for (String kit : DailyKits
                                 ) {
                                     Kits.givePlayerDailyKit(player, Kits.getKit(kit));
-                                    player.sendMessage(Utils.strFormat("&d&l[VIPREFINE]&a&lVIP每日礼包已发放到你的背包中！"));
+                                    List<Text> list1 = new ArrayList<>();
+                                    list1.add(Utils.strFormat("&aVIP每日礼包已发放到你的背包中！"));
+                                    Message.sendPaginationList(player,list1);
                                 }
                             }catch (Exception e){
-                                player.sendMessage(Utils.strFormat("&d&l[VIPREFINE]&a&lVIP每日礼包领取失败！"));
+                                List<Text> list1 = new ArrayList<>();
+                                list1.add(Utils.strFormat("&aVIP每日礼包领取失败！"));
+                                Message.sendPaginationList(player,list1);
                             }
                         })
                         .delay(5, TimeUnit.SECONDS)
@@ -67,9 +77,10 @@ public class DailyKit implements CommandExecutor {
                         .execute(()->{
                             try {
                                 player.offer(Keys.EXPERIENCE_LEVEL, dailyExp);
-                                player.sendMessage(Utils.strFormat("&d&l[VIPREFINE]&a&lVIP每日奖励经验领取成功！"));
                             }catch (Exception e){
-                                player.sendMessage(Utils.strFormat("&d&l[VIPREFINE]&a&lVIP每日奖励经验领取失败"));
+                                List<Text> list1 = new ArrayList<>();
+                                list1.add(Utils.strFormat("&aVIP每日奖励经验领取失败"));
+                                Message.sendPaginationList(player,list1);
                             }
                         })
                         .delay(1,TimeUnit.SECONDS)
@@ -82,19 +93,19 @@ public class DailyKit implements CommandExecutor {
                         Utils.runCommand(command);
                     }
                 }catch (Exception e){
-                    src.sendMessage(Utils.strFormat("&d&l[VIPREFINE]&a&VIP每日礼包指令执行失败"));
+                    src.sendMessage(Utils.strFormat("&d&l[VIPREFINE] &a&VIP每日礼包指令执行失败"));
                 }
                 //写入领取记录
                 try {
                     KitData.whenRedeem(player,TimeCalculation.getTodayTimeLabel());
                 }catch (Exception e){
-                    Sponge.getServer().getConsole().sendMessage(Utils.strFormat("&d&l[VIPREFINE]&4&l写入领取数据失败"));
+                    Sponge.getServer().getConsole().sendMessage(Utils.strFormat("&d&l[VIPREFINE] &4&l写入领取数据失败"));
                 }
             }else {
-                src.sendMessage(Utils.strFormat("&d&l[VIPREFINE]&a&你还不是VIP！"));
+                src.sendMessage(Utils.strFormat("&d&l[VIPREFINE] &4你还不是VIP！"));
             }
         }else {
-            src.sendMessage(Utils.strFormat("&d&l[VIPREFINE]&a&l该指令只能由玩家执行"));
+            src.sendMessage(Utils.strFormat("&d&l[VIPREFINE] &a该指令只能由玩家执行"));
         }
 
         return CommandResult.success();
