@@ -19,21 +19,21 @@ import viprefine.viprefine.utils.Kits;
 import viprefine.viprefine.utils.Message;
 import viprefine.viprefine.utils.Utils;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 public class Vip implements CommandExecutor {
     @Override
     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
         //Check whether the user in the group
-        String group = args.<String>getOne("group").get();
+        String group = getParentNode(args.<String>getOne("group").get());
         User user = args.<User>getOne("user").get();
         String duration = args.<String>getOne("duration").get();
-        if (user.hasPermission("group."+group)){
+        if (user.hasPermission("group."+group.toLowerCase())){
             PaginationList.builder()
                     .padding(Utils.strFormat("&a="))
                     .title(Utils.strFormat("&dVIPREFINE"))
@@ -112,7 +112,6 @@ public class Vip implements CommandExecutor {
 
         //get the exp bonus of this group kits
         int expLevel = Kits.getExpOfThisVipGroup(group);
-        Main.getLogger().info(String.valueOf(expLevel));
         try {
             Sponge.getScheduler().createTaskBuilder()
                     .execute(()->{
@@ -170,7 +169,7 @@ public class Vip implements CommandExecutor {
                                 GenericArguments.onlyOne(
                                         GenericArguments.withSuggestions(
                                                 GenericArguments.string(Text.of("group")),
-                                                Utils.getVipGroups()
+                                                GroupManager.getVipGroupsDisplayNames()
                                         )
                                 ),
                                 GenericArguments.onlyOne(
@@ -191,5 +190,15 @@ public class Vip implements CommandExecutor {
         LocalDateTime newLocalDateTime = localDateTime.plusSeconds(durationSeconds);
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         return dateTimeFormatter.format(newLocalDateTime);
+    }
+
+    private static String getParentNode(String groupDisplayName){
+        for (Object node: Config.getRootNode().getNode("Groups").getChildrenMap().keySet()
+             ) {
+            if (Objects.equals(Config.getRootNode().getNode("Groups", node, "DisplayName").getString(), groupDisplayName)){
+                return (String)node;
+            }
+        }
+        return groupDisplayName;
     }
 }

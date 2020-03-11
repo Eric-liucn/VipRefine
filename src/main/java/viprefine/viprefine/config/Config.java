@@ -55,11 +55,9 @@ public class Config {
         rootNode.getNode("Groups","VIP","DailyKits","Kit1","KitName").setValue("vip每日礼包");
         rootNode.getNode("Groups","VIP","DailyKits","Kit1","Commands").setValue(commands);
         rootNode.getNode("Groups","VIP","DailyKits","Exp").setValue(10);
-        rootNode.getNode("Groups","VIP","JoinBroadcast").setValue(true);
         rootNode.getNode("Groups","VIP","JoinBroadcastMessage").setValue("&l&a欢迎VIP玩家 %player% 加入游戏");
-        rootNode.getNode("Groups","VIP","Prefix").setValue("&a&l[VIP]");
-        rootNode.getNode("Groups","VIP","Suffix").setValue("&d&l[VIP]");
         rootNode.getNode("Groups","VIP","BroadcastMessageAfterActivate").setValue("&a&l玩家%player%开通了VIP");
         rootNode.getNode("Version").setValue(1.0);
+        rootNode.getNode("DaysWhenUseActivateCode").setValue("30d");
     }
 }

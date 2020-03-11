@@ -1,6 +1,5 @@
 package viprefine.viprefine.utils;
 
-import com.flowpowered.noise.module.combiner.Min;
 import net.luckperms.api.node.Node;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import org.spongepowered.api.Sponge;
@@ -14,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 
 public class GroupManager {
 
@@ -49,7 +47,7 @@ public class GroupManager {
                     ) {
                         Optional<User> optionalUser = userStorageService.get(gameProfile);
                         optionalUser.ifPresent(user -> {
-                            if (user.hasPermission("group."+groupName)){
+                            if (user.hasPermission("group."+groupName.toLowerCase())){
                                 userList.add(user.getName());
                             }
                         });
@@ -71,23 +69,23 @@ public class GroupManager {
             for (Node node:user.data().toCollection()
                  ) {
                 for (String vipGroup:Utils.getVipGroups()){
-                    if (node.getKey().equalsIgnoreCase("group."+vipGroup)){
+                    if (node.getKey().equalsIgnoreCase("group."+vipGroup.toLowerCase())){
                         is[0] = true;
                     }
                 }
             }
         }else {
-            CompletableFuture<net.luckperms.api.model.user.User> completableFuture = Main.getLuckPermUserManager().loadUser(userName.getUniqueId());
-            completableFuture.thenAcceptAsync(user -> {
-                for (Node node:user.data().toCollection()
-                ) {
-                    for (String vipGroup:Utils.getVipGroups()){
-                        if (node.getKey().equalsIgnoreCase("group."+vipGroup)){
-                            is[0] = true;
-                        }
+            UserStorageService userStorageService = Sponge.getServiceManager().provide(UserStorageService.class).get();
+            Optional<User> optionalUser = userStorageService.get(userName.getUniqueId());
+            if (optionalUser.isPresent()){
+                User user = optionalUser.get();
+                for (String vipGroup:Utils.getVipGroups()
+                     ) {
+                    if (user.hasPermission("group."+vipGroup.toLowerCase())){
+                        is[0] = true;
                     }
                 }
-            });
+            }
         }
         return is[0];
     }
@@ -96,12 +94,34 @@ public class GroupManager {
         net.luckperms.api.model.user.User user = Main.getLuckPermUserManager().getUser(userName.getUniqueId());
         for (Node node : user.data().toCollection()) {
             for (String vipGroupName : Utils.getVipGroups()) {
-                if (node.getKey().equalsIgnoreCase("group." + vipGroupName)) {
+                if (node.getKey().equalsIgnoreCase("group." + vipGroupName.toLowerCase())) {
                     return node.getKey();
                 }
             }
         }
         return null;
+    }
+
+    public static List<String> getVipGroupsDisplayNames(){
+        List<String> list = new ArrayList<>();
+        for (String vipGroup:Utils.getVipGroups()
+             ) {
+            try {
+                String vipGroupDisplayName = Config.getRootNode().getNode("Groups", vipGroup, "DisplayName").getString();
+                list.add(vipGroupDisplayName);
+            }catch (Exception ignored){}
+        }
+        return list;
+    }
+    
+    public static String getLpGroupNameFromDisplayGroupName(String displayGroupName){
+        for (Object vipGroup:Config.getRootNode().getNode("Groups").getChildrenMap().keySet()
+             ) {
+            if (Config.getRootNode().getNode("Groups",vipGroup,"DisplayName").getString().equals(displayGroupName)){
+                return ((String)vipGroup).toLowerCase();
+            }
+        }
+        return "";
     }
 
 }

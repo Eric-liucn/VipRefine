@@ -1,6 +1,5 @@
 package viprefine.viprefine.commands;
 
-import io.github.nucleuspowered.nucleus.api.nucleusdata.Kit;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
@@ -119,7 +118,7 @@ public class DailyKit implements CommandExecutor {
 
     private static String isVipAndWhichVip(Player player){
         for (String group:Utils.getVipGroups()){
-            if (player.hasPermission("group."+group)){
+            if (player.hasPermission("group."+group.toLowerCase())){
                 return group;
             }
         }

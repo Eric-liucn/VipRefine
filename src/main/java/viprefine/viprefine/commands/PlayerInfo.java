@@ -10,14 +10,12 @@ import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.service.pagination.PaginationList;
 import org.spongepowered.api.text.Text;
-import viprefine.viprefine.Main;
 import viprefine.viprefine.utils.TimeCalculation;
 import viprefine.viprefine.utils.Utils;
 
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public class PlayerInfo implements CommandExecutor {
     @Override
@@ -38,6 +36,7 @@ public class PlayerInfo implements CommandExecutor {
         }else {
             textList.add(Utils.strFormat("&bVIP状态：&d否"));
         }
+
         PaginationList.builder()
                 .title(Utils.strFormat("&dVIPREFINE"))
                 .contents(textList)
@@ -62,7 +61,7 @@ public class PlayerInfo implements CommandExecutor {
     private static String isVipAndWhichVip(User user){
         for (String group : Utils.getVipGroups()
              ) {
-            if (user.hasPermission("group."+group)){
+            if (user.hasPermission("group."+group.toLowerCase())){
                 return group;
             }
         }

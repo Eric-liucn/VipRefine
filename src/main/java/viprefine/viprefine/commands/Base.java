@@ -6,7 +6,6 @@ import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandExecutor;
 import org.spongepowered.api.command.spec.CommandSpec;
-import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.service.pagination.PaginationList;
 import org.spongepowered.api.text.Text;
 import viprefine.viprefine.config.Config;
@@ -39,6 +38,9 @@ public class Base implements CommandExecutor {
                 .child(DailyKit.build(),"dailykit","meirilibao")
                 .child(GroupInfo.build(),"groupinfo","ginfo")
                 .child(Remove.build(),"remove")
+                .child(Modify.build(),"modify")
+                .child(Key.build(),"key")
+                .child(GenKey.build(),"genkey")
                 .build();
     }
 }

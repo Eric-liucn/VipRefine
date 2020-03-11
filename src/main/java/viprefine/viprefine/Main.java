@@ -9,15 +9,17 @@ import net.luckperms.api.model.user.UserManager;
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.config.ConfigDir;
-import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 import org.spongepowered.api.plugin.Dependency;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 import viprefine.viprefine.commands.Base;
 import viprefine.viprefine.config.Config;
+import viprefine.viprefine.config.KitCode;
 import viprefine.viprefine.config.KitData;
+import viprefine.viprefine.listeners.VipJoinListener;
 
 import java.io.File;
 import java.io.IOException;
@@ -71,11 +73,13 @@ public class Main {
         try {
             Config.setup(file);
             KitData.setUpDataBase(file);
+            KitCode.setUp(file);
         }catch (IOException e){
             e.printStackTrace();
         }
 
         Sponge.getCommandManager().register(this, Base.build(),"viprefine","vip","vr");
+        Sponge.getEventManager().registerListeners(this,new VipJoinListener());
     }
 
     private static LuckPerms getLuckPerms(){

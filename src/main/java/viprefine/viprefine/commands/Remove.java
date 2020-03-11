@@ -23,9 +23,12 @@ public class Remove implements CommandExecutor {
             return CommandResult.success();
         }
         try {
-            UserNodeManager.removeNodeOfUser(user, GroupManager.getUserVipGroupNode(user));
+            while (!Utils.isVipAndWhichVip(user).equals("")) {
+                UserNodeManager.removeNodeOfUser(user, GroupManager.getUserVipGroupNode(user));
+                Message.sendPaginationText(src, Utils.strFormat("&d已将该用户所有的VIP组移除"));
+            }
         }catch (Exception e){
-            Message.sendPaginationText(src,Utils.strFormat("&d已将该用户所有的VIP组移除"));
+            Message.sendPaginationText(src,Utils.strFormat("&d移除该用户的VIP组权限失败"));
         }
 
         return CommandResult.success();

@@ -7,11 +7,11 @@ import net.luckperms.api.model.group.Group;
 import net.luckperms.api.node.Node;
 import net.luckperms.api.query.QueryOptions;
 import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
+import org.spongepowered.api.service.user.UserStorageService;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.serializer.TextSerializers;
 import viprefine.viprefine.Main;
@@ -32,7 +32,7 @@ public class Utils {
 
 
     public static boolean addUserToGroup(User user, String groupName, String duration){
-        Node node = Node.builder("group."+groupName)
+        Node node = Node.builder("group."+groupName.toLowerCase())
                 .expiry(getDurationLong(duration),TimeUnit.SECONDS)
                 .build();
         DataMutateResult result;
@@ -62,15 +62,32 @@ public class Utils {
         return userCompletableFuture.join();
     }
 
-    public static void setGroupExpireOfUser(User user,String groupName,String duration){
-        for (Node node:Main.getLuckPermUserManager().getUser(user.getUniqueId()).getDistinctNodes()
-             ) {
-            if (node.getKey().equals("group."+groupName)){
-                node.toBuilder()
-                        .expiry(getDurationLong(duration),TimeUnit.SECONDS)
-                        .build();
+    public static void setGroupExpireOfUser(User user,String groupName,long newExpiredTime){
+        if (user.isOnline()){
+            net.luckperms.api.model.user.User lpUser = Main.getLuckPermUserManager().getUser(user.getUniqueId());
+            for (Node node:lpUser.data().toCollection()){
+                if (node.getKey().equals("group."+groupName.toLowerCase())){
+                    Node newNode = node.toBuilder().expiry(newExpiredTime,TimeUnit.SECONDS).build();
+                    upDateNode(lpUser,node,newNode);
+                }
             }
+        }else {
+            CompletableFuture<net.luckperms.api.model.user.User> userCompletableFuture = Main.getLuckPermUserManager().loadUser(user.getUniqueId());
+            userCompletableFuture.thenAcceptAsync(lpUser -> {
+                for (Node node:lpUser.data().toCollection()){
+                    if (node.getKey().equals("group."+groupName.toLowerCase())){
+                        Node newNode = node.toBuilder().expiry(newExpiredTime,TimeUnit.SECONDS).build();
+                        upDateNode(lpUser,node,newNode);
+                    }
+                }
+            });
         }
+    }
+
+    private static void upDateNode(net.luckperms.api.model.user.User lpUser, Node oldNode , Node newNode){
+        lpUser.data().remove(oldNode);
+        lpUser.data().add(newNode);
+        saveUserData(lpUser);
     }
 
     public static long getDurationLong(String duration){
@@ -97,12 +114,6 @@ public class Utils {
         }
         return durationLong;
     }
-
-    public static String getPrimaryGroupName(User user){
-        return Objects.requireNonNull(Main.getLuckPermUserManager().getUser(user.getUniqueId())).getPrimaryGroup();
-    }
-
-
 
     public static CachedMetaData getUserMetaData(User user){
         QueryOptions queryOptions = Main.getContextManager().getQueryOptions(user);
@@ -138,9 +149,9 @@ public class Utils {
         return user.hasPermission("group."+group.getName());
     }
 
-    public static @Nullable Instant getUserInGroupExpire(User user, String group){
+    public static Instant getUserInGroupExpire(User user, String group){
         for (Node node:getUserIfOffline(user).data().toCollection()){
-            if (node.getKey().equals("group."+group)){
+            if (node.getKey().equals("group."+group.toLowerCase())){
                 return node.getExpiry();
             }
         }
@@ -162,9 +173,34 @@ public class Utils {
     public static List<String> getVipGroups(){
         List<String> vipGroups = new ArrayList<>();
         for (Object group: Config.getRootNode().getNode("Groups").getChildrenMap().keySet()){
-            vipGroups.add(((String)group).toLowerCase());
+            vipGroups.add(((String)group));
         }
         return vipGroups;
+    }
+
+    public static String isVipAndWhichVip(User user){
+        if (user.isOnline()){
+            net.luckperms.api.model.user.User lpUser = Main.getLuckPermUserManager().getUser(user.getUniqueId());
+            for (Node node:lpUser.data().toCollection()){
+                for (String vipGroup:getVipGroups()){
+                    if (node.getKey().equalsIgnoreCase("group."+vipGroup.toLowerCase())){
+                        return vipGroup;
+                    }
+                }
+            }
+        }else {
+            UserStorageService userStorageService = Sponge.getServiceManager().provide(UserStorageService.class).get();
+            Optional<User> optionalUser = userStorageService.get(user.getProfile());
+            if (optionalUser.isPresent()){
+                User spongeUser = optionalUser.get();
+                for (String vipGroup:getVipGroups()){
+                    if (spongeUser.hasPermission("group."+vipGroup.toLowerCase())){
+                        return vipGroup;
+                    }
+                }
+            }
+        }
+        return "";
     }
 
 }
