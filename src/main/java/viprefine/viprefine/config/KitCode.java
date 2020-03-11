@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class KitCode {
 
@@ -69,8 +71,8 @@ public class KitCode {
     public static String getDisplayNameFromKey(String key) throws ObjectMappingException {
         for (Object vipGroupDisplayName:rootNode.getNode("Keys").getChildrenMap().keySet()
              ) {
-            List<String> list = rootNode.getNode("Keys").getList(TypeToken.of(String.class));
-            if (list.contains(vipGroupDisplayName)){
+            List<String> list = rootNode.getNode("Keys",vipGroupDisplayName).getList(TypeToken.of(String.class));
+            if (list.contains(key)){
                 return (String)vipGroupDisplayName;
             }
         }
@@ -84,6 +86,9 @@ public class KitCode {
         for (int i = 0; i < 8 ; i++) {
             Random random = new Random();
             int n = random.nextInt(strings.length);
+            while (isNum(strings[n])&&i==0){
+                n = random.nextInt(strings.length);
+            }
             stringBuilder.append(strings[n]);
             if (i==3){
                 stringBuilder.append("-");
@@ -98,6 +103,12 @@ public class KitCode {
              ) {
             rootNode.getNode("Keys",vipGroupDisplayName).setValue(list);
         }
+    }
+
+    private static boolean isNum(String s){
+        Pattern pattern = Pattern.compile("[0-9]");
+        Matcher matcher = pattern.matcher(s);
+        return matcher.find();
     }
 
 
