@@ -11,17 +11,6 @@ public class KitData {
     private static Connection connection;
     private static Statement statement;
 
-    public static Connection getConnection() {
-        return connection;
-    }
-
-    public static String getDATABASEURL() {
-        return DATABASEURL;
-    }
-
-    public static Statement getStatement() {
-        return statement;
-    }
 
     public static void setUpDataBase(File file) throws IOException {
         if (!file.exists()){

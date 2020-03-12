@@ -10,6 +10,7 @@ import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.command.spec.CommandExecutor;
 import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.text.Text;
 import viprefine.viprefine.config.Config;
 import viprefine.viprefine.config.KitCode;
@@ -23,6 +24,12 @@ public class Key implements CommandExecutor {
     @Override
     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
         if (src instanceof Player) {
+            User user = (User) src;
+            if (!Utils.isVipAndWhichVip(user).equals("")){
+                Message.sendPaginationText(src,Utils.strFormat("&4&l你已经是VIP了，请解除当前的VIP再使用激活码"));
+                return CommandResult.success();
+            }
+
             Player player = (Player) src;
             String key = args.<String>getOne("key").get();
             try {

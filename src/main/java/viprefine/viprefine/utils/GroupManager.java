@@ -1,6 +1,8 @@
 package viprefine.viprefine.utils;
 
+import net.luckperms.api.model.group.Group;
 import net.luckperms.api.node.Node;
+import net.luckperms.api.node.types.InheritanceNode;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.User;
@@ -122,6 +124,58 @@ public class GroupManager {
             }
         }
         return "";
+    }
+
+    public static void creatGroupIfNotExist(String group){
+        if (Main.getLuckPermGroupManager().getGroup(group.toLowerCase())==null){
+            Main.getLuckPermGroupManager().createAndLoadGroup(group.toLowerCase());
+        }
+    }
+
+    public static void setWeightOfGroup(String groupName){
+        int weight = Config.getRootNode().getNode("Groups",groupName,"WeightOfGroup").getInt();
+
+        Sponge.getScheduler().createTaskBuilder()
+                .execute(()->{
+                    Main.getLuckPermGroupManager().loadAllGroups();
+                    Group group = Main.getLuckPermGroupManager().getGroup(groupName.toLowerCase());
+                    try {
+                        for (Node node : group.data().toCollection()) {
+                            if (node.getKey().contains("weight.")) {
+                                group.data().remove(node);
+                            }
+                        }
+                    }catch (Exception ignored){}
+                    Node node = Node.builder("weight."+weight).value(true).build();
+                    group.data().add(node);
+                    Main.getLuckPermGroupManager().saveGroup(group);
+                })
+                .delayTicks(5)
+                .submit(Main.getINSTANCE());
+    }
+
+    public static void setParentOfGroup(String groupName){
+        String parent = Config.getRootNode().getNode("Groups",groupName,"ParentGroup").getString();
+
+        Sponge.getScheduler().createTaskBuilder()
+                .execute(()->{
+                    Group group = Main.getLuckPermGroupManager().getGroup(groupName.toLowerCase());
+                    try {
+                        for (Node node : group.data().toCollection()) {
+                            if (node.getKey().contains("group.")) {
+                                group.data().remove(node);
+                            }
+                        }
+                    }catch (Exception ignored){}
+                    InheritanceNode node = InheritanceNode.builder()
+                            .group(parent)
+                            .value(true)
+                            .build();
+                    group.data().add(node);
+                    Main.getLuckPermGroupManager().saveGroup(group);
+                })
+                .delayTicks(5)
+                .submit(Main.getINSTANCE());
     }
 
 }

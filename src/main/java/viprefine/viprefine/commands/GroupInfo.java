@@ -62,7 +62,7 @@ public class GroupInfo implements CommandExecutor {
                         )
                 )
                 .permission("viprefine.groupinfo")
-                .description(Text.of("Show the information of the specific group"))
+                .description(Text.of("显示指定组的信息"))
                 .build();
     }
 

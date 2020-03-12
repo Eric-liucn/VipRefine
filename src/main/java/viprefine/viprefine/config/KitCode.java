@@ -83,7 +83,8 @@ public class KitCode {
         String[] strings = {"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","W","Q","S","R","T","U","V",
                 "W","X","Y","Z","1","2","3","4","5","6","7","8","9"};
         StringBuilder stringBuilder = new StringBuilder();
-        for (int i = 0; i < 8 ; i++) {
+        int length = Config.getRootNode().getNode("LengthOfKey").getInt();
+        for (int i = 0; i < length ; i++) {
             Random random = new Random();
             int n = random.nextInt(strings.length);
             while (isNum(strings[n])&&i==0){

@@ -113,6 +113,8 @@ public class DailyKit implements CommandExecutor {
     public static CommandSpec build(){
         return CommandSpec.builder()
                 .executor(new DailyKit())
+                .description(Text.of("领取每日礼包"))
+                .permission("viprefine.dailykit")
                 .build();
     }
 

@@ -35,12 +35,14 @@ public class Base implements CommandExecutor {
                 .executor(new Base())
                 .child(Vip.build(),"vip")
                 .child(PlayerInfo.build(),"playerinfo","pinfo")
-                .child(DailyKit.build(),"dailykit","meirilibao")
+                .child(DailyKit.build(),"dailykit","mrlb")
                 .child(GroupInfo.build(),"groupinfo","ginfo")
                 .child(Remove.build(),"remove")
                 .child(Modify.build(),"modify")
                 .child(Key.build(),"key")
                 .child(GenKey.build(),"genkey")
+                .child(Reload.build(),"reload")
+                .child(GroupSetUp.build(),"groupsetup","gsetup")
                 .build();
     }
 }
